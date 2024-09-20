@@ -30,16 +30,3 @@ class UserManagementRetrieveQuery:
         await self.permission_service.assert_permissions(BasePermissions.superuser)
         user = await self.query(payload)
         return UserDetailsFull.model_validate(user)
-
-#
-# class EmailManagementRetrieveQuery:
-#     def __init__(
-#             self,
-#             query: EmailRetrieveQuery,
-#     ) -> None:
-#         self.query = query
-#
-#     async def __call__(self, payload: str) -> UserDetailsFull:
-#         await self.permission_service.assert_permissions(BasePermissions.superuser)
-#         email = await self.query(payload)
-#         return UserDetailsFull.model_validate(email)

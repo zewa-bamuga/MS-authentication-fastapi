@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "microservice_auth_fastapi"
-version = "0.0.7"
+version = "0.0.8"
 description = "Microservice for authorization for private teachers"
 authors = ["zewa-bamuga <tikhonov.igor2028@yandex.ru>"]
 readme = "README.md"

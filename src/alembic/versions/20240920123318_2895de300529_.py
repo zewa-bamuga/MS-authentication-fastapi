@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: b30000d1508e
+Revision ID: 2895de300529
 Revises: 
-Create Date: 2024-09-20 06:54:34.339248
+Create Date: 2024-09-20 12:33:18.035650
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = 'b30000d1508e'
+revision: str = '2895de300529'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -47,6 +47,7 @@ def upgrade() -> None:
     sa.Column('password_hash', sa.String(), nullable=True),
     sa.Column('avatar_attachment_id', sa.UUID(), nullable=True),
     sa.Column('permissions', postgresql.ARRAY(sa.String()), nullable=True),
+    sa.Column('role', postgresql.ARRAY(sa.String()), nullable=True),
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),

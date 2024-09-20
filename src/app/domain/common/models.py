@@ -45,6 +45,7 @@ class User(Base):
         nullable=True,
     )
     permissions: orm.Mapped[set[str] | None] = orm.mapped_column(ARRAY(sa.String))
+    role: orm.Mapped[set[str] | None] = orm.mapped_column(ARRAY(sa.String))
 
     avatar_attachment = relationship(
         "Attachment",

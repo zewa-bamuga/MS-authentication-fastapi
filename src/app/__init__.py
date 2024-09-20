@@ -1,6 +1,6 @@
 import os.path
 
-__version__ = "0.0.7"
+__version__ = "0.0.8"
 __project_name__ = "Microservice for English language teachers"
 __root_dir__ = os.path.dirname(os.path.abspath(__file__))
 __api_description__ = """
