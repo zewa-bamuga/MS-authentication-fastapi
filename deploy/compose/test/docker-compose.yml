@@ -1,0 +1,41 @@
+version: '3'
+
+volumes:
+  postgres_data_test: {}
+
+services:
+  fastapi_test: &core
+    build:
+      context: .
+      dockerfile: ./deploy/compose/local/fastapi.dockerfile
+    volumes:
+      - ./src:/src
+    depends_on:
+      - postgres_test
+      - db-init_test
+    command: pytest -vv --cov=app --cov-branch --cov-report term-missing --cov-fail-under=80
+    env_file:
+      - .env.test
+    restart: "no"
+
+  db-init_test:
+    <<: *core
+    depends_on:
+      - postgres_test
+    ports: []
+    env_file:
+      - .env.test
+    restart: "no"
+    command: /start-db-init.sh
+
+  postgres_test:
+    image: postgres:latest
+    volumes:
+      - postgres_data_test:/var/lib/postgresql/data/pgdata
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    env_file:
+      - .env.test
+    restart: "unless-stopped"
+    ports:
+      - "5432:5432"

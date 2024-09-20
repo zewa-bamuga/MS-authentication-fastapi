@@ -1,0 +1,9 @@
+.*
+!.coveragerc
+!.env
+!.pylintrc
+!.venv
+
+**/node_modules
+**/npm-debug.log
+build

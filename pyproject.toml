@@ -1,0 +1,63 @@
+[tool.poetry]
+name = "microservice_auth_fastapi"
+version = "0.0.7"
+description = "Microservice for authorization for private teachers"
+authors = ["zewa-bamuga <tikhonov.igor2028@yandex.ru>"]
+readme = "README.md"
+packages = [{include = "src/app"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pip = "^23.3.2"
+dependency-injector = "4.41.0"
+fastapi = "0.108.0"
+pydantic = {extras = ["email"], version = "^2.7.3"}
+pydantic-settings = "2.1.0"
+orjson = "3.9.10"
+uvicorn = "0.25.0"
+gunicorn = "21.2.0"
+typer = "0.9.0"
+python-multipart = "0.0.6"
+sqlalchemy = "2.0.24"
+alembic = "1.13.1"
+asyncpg = "0.29.0"
+psycopg2-binary = "2.9.9"
+passlib = {version = "1.7.4", extras = ["bcrypt"]}
+celery = {version = "5.3.6", extras = ["amqp"]}
+pyjwt = {version = "2.8.0", extras = ["crypto"]}
+sentry-sdk = "1.39.1"
+loguru = "0.7.2"
+tenacity = "8.2.3"
+boto3 = "1.34.9"
+a8t-tools = {extras = ["all"], version = "~0.1.1", source = "gitlab"}
+generate-password = "^1.0.0"
+sa = "^0.0.4"
+bcrypt = "4.0.1"
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "3.0.4"
+pytest = "^7.4.3"
+pytest-asyncio = "^0.23.2"
+pytest-cov = "^4.1.0"
+factory-boy = "^3.3.0"
+async-asgi-testclient = "^1.4.11"
+pytest-timeout = "^2.2.0"
+nest-asyncio = "^1.5.8"
+pyfakefs = "^5.3.2"
+freezegun = "^1.4.0"
+flake8 = "^6.0.0"
+isort = "^5.12.0"
+black = "^23.1.0"
+pyupgrade = "^3.3.1"
+pyright = "^1.1.300"
+mypy = "^1.8.0"
+types-passlib = "^1.7.7.10"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[[tool.poetry.source]]
+name = "gitlab"
+url = "https://git.aldera-soft.ru/api/v4/projects/273/packages/pypi/simple"
+priority = "primary"
