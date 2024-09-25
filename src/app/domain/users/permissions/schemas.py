@@ -7,6 +7,7 @@ class BasePermissions(PermissionsBase):
     user = enum.auto()
     authenticated = enum.auto()
 
+
 class BaseRole(PermissionsBase):
     teacher = enum.auto()
     student = enum.auto()

@@ -23,7 +23,6 @@ class TokenPayloadQuery:
         self.jwt_service = jwt_service
 
     async def __call__(self, token: str, validate: bool = True) -> schemas.TokenPayload:
-        print("Received token:", token)
         with self._handle_auth_exceptions():
             decoded_token = await self.jwt_service.decode(token, validate)
 

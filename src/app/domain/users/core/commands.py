@@ -44,13 +44,13 @@ class UpdatePasswordRequestCommand:
 
 
 class UserPartialUpdateCommand:
-    def __init__(self, user_repository: UserRepository):
-        self.user_repository = user_repository
+    def __init__(self, repository: UserRepository):
+        self.repository = repository
 
     async def __call__(self, user_id: UUID, payload: schemas.UserPartialUpdate) -> schemas.UserDetailsFull:
         try:
-            await self.user_repository.partial_update_user(user_id, payload)
-            user = await self.user_repository.get_user_by_filter_or_none(schemas.UserWhere(id=user_id))
+            await self.repository.partial_update_user(user_id, payload)
+            user = await self.repository.get_user_by_filter_or_none(schemas.UserWhere(id=user_id))
 
             if not user:
                 raise NotFoundError()
@@ -108,14 +108,14 @@ class UpdatePasswordConfirmCommand:
 class UserCreateCommand:
     def __init__(
             self,
-            user_repository: UserRepository,
+            repository: UserRepository,
             task_producer: TaskProducer,
     ):
-        self.user_repository = user_repository
+        self.repository = repository
         self.task_producer = task_producer
 
     async def __call__(self, payload: schemas.UserCreate) -> schemas.UserDetails:
-        user_id_container = await self.user_repository.create_user(
+        user_id_container = await self.repository.create_user(
             schemas.UserCreateFull(
                 status=enums.UserStatuses.unconfirmed,
                 **payload.model_dump(),
@@ -123,7 +123,7 @@ class UserCreateCommand:
         )
         logger.info(f"User created: {user_id_container.id}")
         await self._enqueue_user_activation(user_id_container)
-        user = await self.user_repository.get_user_by_filter_or_none(schemas.UserWhere(id=user_id_container.id))
+        user = await self.repository.get_user_by_filter_or_none(schemas.UserWhere(id=user_id_container.id))
         assert user
 
         return schemas.UserDetails.model_validate(user)

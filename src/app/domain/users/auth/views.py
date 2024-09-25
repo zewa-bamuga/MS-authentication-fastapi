@@ -1,15 +1,37 @@
+from a8t_tools.security.tokens import override_user_token
 from dependency_injector import wiring
-from fastapi import APIRouter, Body, Depends
+from fastapi import APIRouter, Body, Depends, Header
 from starlette import status
+from contextlib import asynccontextmanager
 
 from app.containers import Container
 from app.domain.users.auth.commands import TokenRefreshCommand, UserAuthenticateCommand
 from app.domain.users.auth.schemas import TokenResponse
 from app.domain.users.core import schemas
 from app.domain.users.core.commands import UpdatePasswordRequestCommand, UpdatePasswordConfirmCommand
-from app.domain.users.core.schemas import UserCredentials, EmailForCode
+from app.domain.users.core.schemas import UserCredentials, EmailForCode, UserDetails
+from app.domain.users.profile.queries import UserProfileMeQuery
 
 router = APIRouter()
+
+
+@asynccontextmanager
+async def user_token(token: str):
+    async with override_user_token(token or ""):
+        yield
+
+
+@router.get(
+    "/me",
+    response_model=UserDetails,
+)
+@wiring.inject
+async def get_me(
+        token: str = Header(...),
+        query: UserProfileMeQuery = Depends(wiring.Provide[Container.user.profile_me_query]),
+) -> UserDetails:
+    async with user_token(token):
+        return await query()
 
 
 @router.post(

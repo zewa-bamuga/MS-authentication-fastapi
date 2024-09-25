@@ -30,6 +30,7 @@ from app.domain.users.core.queries import (
     UserRetrieveByUsernameQuery,
     UserRetrieveQuery, UserRetrieveByEmailQuery, UserRetrieveByCodeQuery,
 )
+from app.domain.users.profile.queries import UserProfileMeQuery
 from app.domain.users.registration.hi import Generate_Password, First_Registration
 from app.domain.users.core.repositories import UserRepository, \
     UpdatePasswordRepository, EmailRpository
@@ -59,14 +60,14 @@ class UserContainer(containers.DeclarativeContainer):
 
     refresh_expiration_time = providers.Dependency(instance_of=int)
 
-    user_repository = providers.Factory(
+    repository = providers.Factory(
         UserRepository,
         transaction=transaction,
     )
 
     user_retrieve_query = providers.Factory(
         UserRetrieveQuery,
-        user_repository=user_repository,
+        repository=repository,
     )
 
     repository_update_password = providers.Factory(
@@ -81,33 +82,33 @@ class UserContainer(containers.DeclarativeContainer):
 
     user_list_query = providers.Factory(
         UserListQuery,
-        user_repository=user_repository,
+        repository=repository,
     )
 
     retrieve_query = providers.Factory(
         UserRetrieveQuery,
-        user_repository=user_repository,
+        repository=repository,
     )
 
     retrieve_by_email_query = providers.Factory(
         UserRetrieveByEmailQuery,
-        user_repository=user_repository,
+        repository=repository,
     )
 
     retrieve_by_username_query = providers.Factory(
         UserRetrieveByUsernameQuery,
-        repository=user_repository,
+        repository=repository,
     )
 
     create_command = providers.Factory(
         UserCreateCommand,
-        user_repository=user_repository,
+        repository=repository,
         task_producer=task_producer,
     )
 
     activate_command = providers.Factory(
         UserActivateCommand,
-        repository=user_repository,
+        repository=repository,
     )
 
     generate_password = providers.Factory(
@@ -140,7 +141,7 @@ class UserContainer(containers.DeclarativeContainer):
 
     partial_update_command = providers.Factory(
         UserPartialUpdateCommand,
-        user_repository=user_repository,
+        repository=repository,
     )
 
     token_ctx_var_object = providers.Object(token_ctx_var)
@@ -193,12 +194,12 @@ class UserContainer(containers.DeclarativeContainer):
 
     get_user_by_username = providers.Factory(
         UserRetrieveByUsernameQuery,
-        repository=user_repository,
+        repository=repository,
     )
 
     get_user_by_email = providers.Factory(
         UserRetrieveByEmailQuery,
-        user_repository=user_repository,
+        repository=repository,
     )
 
     token_repository = providers.Factory(TokenRepository, transaction=transaction)
@@ -269,4 +270,10 @@ class UserContainer(containers.DeclarativeContainer):
         UserManagementPartialUpdateCommand,
         permission_service=permission_service,
         command=partial_update_command,
+    )
+
+    profile_me_query = providers.Factory(
+        UserProfileMeQuery,
+        permission_service=permission_service,
+        current_user_query=current_user_query,
     )

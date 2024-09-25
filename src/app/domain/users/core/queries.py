@@ -27,12 +27,12 @@ class UserRetrieveByUsernameQuery:
 
 
 class UserRetrieveByEmailQuery:
-    def __init__(self, user_repository: UserRepository):
-        self.user_repository = user_repository
+    def __init__(self, repository: UserRepository):
+        self.repository = repository
 
     async def __call__(self, email: str) -> schemas.UserInternal | None:
         try:
-            user_internal = await self.user_repository.get_user_by_filter_by_email_or_none(
+            user_internal = await self.repository.get_user_by_filter_by_email_or_none(
                 schemas.UserWhere(email=email))
         except Exception as e:
             print("не попал:", e)
@@ -42,16 +42,16 @@ class UserRetrieveByEmailQuery:
 
 
 class UserRetrieveByCodeQuery:
-    def __init__(self, update_password_repository: UpdatePasswordRepository, user_repository: UserRepository):
+    def __init__(self, update_password_repository: UpdatePasswordRepository, repository: UserRepository):
         self.update_password_repository = update_password_repository
-        self.user_repository = user_repository
+        self.repository = repository
 
     async def __call__(self, code: str) -> schemas.PasswordResetCode:
         password_reset_code_internal = await self.update_password_repository.get_password_reset_code_by_code_or_none(
             schemas.PasswordResetCodeWhere(code=code))
 
         if password_reset_code_internal is None:
-            password_reset_code_internal = await self.user_repository.get_password_reset_code_by_code_or_none(
+            password_reset_code_internal = await self.repository.get_password_reset_code_by_code_or_none(
                 schemas.PasswordResetCodeWhere(code=code))
 
         print("выполняется после password_reset_code_internal")
@@ -60,11 +60,11 @@ class UserRetrieveByCodeQuery:
 
 
 class UserRetrieveQuery:
-    def __init__(self, user_repository: UserRepository):
-        self.user_repository = user_repository
+    def __init__(self, repository: UserRepository):
+        self.repository = repository
 
     async def __call__(self, user_id: UUID) -> schemas.UserInternal:
-        result = await self.user_repository.get_user_by_filter_or_none(schemas.UserWhere(id=user_id))
+        result = await self.repository.get_user_by_filter_or_none(schemas.UserWhere(id=user_id))
         if not result:
             raise NotFoundError()
         return schemas.UserInternal.model_validate(result)
