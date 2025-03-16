@@ -63,6 +63,7 @@ class UserPartialUpdate(APIModel):
     firstname: str | None = None
     email: EmailStr | None = None
     avatar_attachment_id: UUID | None = None
+    password_hash: str | None = None
     permissions: set[str] | None = None
     status: str | None = None
 

@@ -6,7 +6,7 @@ from sqlalchemy.sql.base import ExecutableOption
 import sqlalchemy as sa
 from a8t_tools.db.pagination import PaginationCallable, Paginated
 from a8t_tools.db.sorting import SortingData
-from a8t_tools.db.transactions import AsyncDbTransaction
+from a8t_tools.db.transactions import AsyncDbTransaction, logger
 from a8t_tools.db.utils import CrudRepositoryMixin
 
 from app.domain.common import models, enums
@@ -56,15 +56,7 @@ class UpdatePasswordRepository(CrudRepositoryMixin[models.PasswordResetCode]):
         self.transaction = transaction
 
     async def create_update_password(self, payload: schemas.PasswordResetCode) -> IdContainerTables:
-        async with self.transaction.use() as session:
-            stmt = insert(models.PasswordResetCode).values(
-                {
-                    "user_id": payload.user_id,
-                    "code": payload.code,
-                }
-            )
-
-        await session.execute(stmt)
+        return IdContainerTables(id=await self._create(payload))
 
     async def delete_code(self, user_id: UUID) -> None:
         async with self.transaction.use() as session:
@@ -144,6 +136,7 @@ class UserRepository(CrudRepositoryMixin[models.User]):
         return IdContainer(id=await self._create(payload))
 
     async def partial_update_user(self, user_id: UUID, payload: schemas.UserPartialUpdate) -> None:
+        print(f"Updating user {user_id} with payload: {payload}")
         return await self._partial_update(user_id, payload)
 
     async def delete_user(self, user_id: UUID) -> None:
@@ -158,6 +151,28 @@ class UserRepository(CrudRepositoryMixin[models.User]):
             schemas.PasswordResetCode,
             condition=await self._format_filters_code(where),
         )
+
+    async def _format_filters_code(self, where: schemas.PasswordResetCodeWhere) -> ColumnElement[bool]:
+        filters: list[ColumnElement[bool]] = []
+        print("выполняется в _format_filters_code")
+
+        if where.id is not None:
+            print("выполняется поиск 1")
+            filters.append(models.PasswordResetCode.id == where.id)
+
+        if where.code is not None:
+            print("выполняется поиск 2")
+            filters.append(models.PasswordResetCode.code == where.code)
+            print("выполняется поиск 2 конец")
+
+        if where.user_id is not None:
+            print("выполняется поиск по user_id")
+            filters.append(models.PasswordResetCode.user_id == where.user_id)
+
+        print("where.code: ", where.code)
+        print("where.user_id: ", where.user_id)
+
+        return and_(*filters)
 
     async def _format_filters(self, where: schemas.UserWhere) -> ColumnElement[bool]:
         filters: list[ColumnElement[bool]] = []

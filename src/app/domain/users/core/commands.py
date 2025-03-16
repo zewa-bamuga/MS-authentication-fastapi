@@ -2,6 +2,7 @@ from uuid import UUID
 
 from a8t_tools.bus.producer import TaskProducer
 from a8t_tools.security.hashing import PasswordHashService
+from fastapi import HTTPException
 from loguru import logger
 
 from app.domain.common import enums
@@ -47,18 +48,12 @@ class UserPartialUpdateCommand:
     def __init__(self, user_repository: UserRepository):
         self.user_repository = user_repository
 
-    async def __call__(self, user_id: UUID, payload: schemas.UserPartialUpdate) -> schemas.UserDetailsFull:
-        try:
-            await self.user_repository.partial_update_user(user_id, payload)
-            user = await self.user_repository.get_user_by_filter_or_none(schemas.UserWhere(id=user_id))
+    async def __call__(self, user_id: UUID, password_hash: str) -> schemas.UserDetailsFull:
+        payload = schemas.UserPartialUpdate(password_hash=password_hash)
+        await self.user_repository.partial_update_user(user_id, payload)
+        user = await self.user_repository.get_user_by_filter_or_none(schemas.UserWhere(id=user_id))
 
-            if not user:
-                raise NotFoundError()
-
-        except Exception as e:
-            print("Произошла ошибка при обновлении пользователя или сотрудника:", e)
-            raise
-
+        assert user
         return schemas.UserDetailsFull.model_validate(user)
 
 
@@ -79,30 +74,26 @@ class UpdatePasswordConfirmCommand:
 
     async def __call__(self, payload: schemas.UpdatePasswordConfirm) -> None:
         email = payload.email
-        print("выполняется user_retrieve_by_email_query")
         user_internal = await self.user_retrieve_by_email_query(email)
-        print("выполняется user_internal: ", user_internal)
+        if not user_internal:
+            raise HTTPException(status_code=404, detail="User not found")
 
-        print("выполняется user_retrieve_by_code_query")
         code = payload.code
         code_internal = await self.user_retrieve_by_code_query(code)
-        print("после user_retrieve_by_code_query: ", code_internal)
+        if not code_internal:
+            raise HTTPException(status_code=404, detail="Invalid or expired code")
 
         user_id = user_internal.id
         user_id_by_code = code_internal.user_id
-        print("user_id: ", user_id)
+
+        if user_id != user_id_by_code:
+            raise HTTPException(status_code=400, detail="Code does not match user")
+
+        print("USER_ID: ", user_id)
+        print("user_id_by_code: ", user_id_by_code)
 
         password_hash = await self.password_hash_service.hash(payload.password)
-
-        update_payload = schemas.UserPartialUpdateFull(
-            password_hash=password_hash
-        )
-
-        print("Сейчас будет передаваться в user_partial_update_command")
-
-        await self.user_partial_update_command(user_id, update_payload)
-
-        print("user_id: ", user_id, "\nupdate_payload: ", update_payload)
+        await self.user_partial_update_command(user_id, password_hash)
 
 
 class UserCreateCommand:

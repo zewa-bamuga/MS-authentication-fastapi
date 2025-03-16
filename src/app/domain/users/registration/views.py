@@ -35,12 +35,7 @@ async def email_verification_code_confirm(
         command: UserEmailVerificationConfirmCommand = Depends(
             wiring.Provide[Container.user.email_verification_confirm_command]),
 ):
-    user_details = await command(payload)
-    if user_details:
-        return {"message": "Код был удален"}
-    else:
-        print(payload)
-        return {"message": "Код не найден"}
+    await command(payload)
 
 
 @router.post(

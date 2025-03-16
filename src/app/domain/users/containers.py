@@ -180,6 +180,7 @@ class UserContainer(containers.DeclarativeContainer):
     get_userID_by_code = providers.Factory(
         UserRetrieveByCodeQuery,
         update_password_repository=repository_update_password,
+        user_repository=user_repository
     )
 
     update_password_confirm_command = providers.Factory(

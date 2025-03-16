@@ -42,7 +42,11 @@ class UserRetrieveByEmailQuery:
 
 
 class UserRetrieveByCodeQuery:
-    def __init__(self, update_password_repository: UpdatePasswordRepository, user_repository: UserRepository):
+    def __init__(
+            self,
+            update_password_repository: UpdatePasswordRepository,
+            user_repository: UserRepository
+    ):
         self.update_password_repository = update_password_repository
         self.user_repository = user_repository
 

@@ -45,8 +45,7 @@ async def password_reset_request(
         payload: EmailForCode,
         command: UpdatePasswordRequestCommand = Depends(wiring.Provide[Container.user.update_password_request_command]),
 ):
-    user_details = await command(payload)
-    return user_details
+    return await command(payload)
 
 
 @router.post(
