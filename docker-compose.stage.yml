@@ -10,21 +10,6 @@ volumes:
   fastapi_media: {}
 
 services:
-  traefik:
-    image: traefik:v3.0
-    command:
-      - "--api.insecure=true"
-      - "--providers.docker"
-      - "--providers.docker.exposedByDefault=false"
-      - "--entrypoints.http.address=:80"
-    expose:
-      - "80"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    restart: "unless-stopped"
-    networks:
-      - demo
-
   fastapi: &core
     build:
       context: .
@@ -37,66 +22,40 @@ services:
     depends_on:
       - postgres
       - rabbitmq
-      - db-init
     command: /start-reload-fastapi.sh
     env_file:
       - .env
     restart: "unless-stopped"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.api.rule=PathPrefix(`/api`)"
     networks:
       - demo
-
-  celery-main: &background
-    <<: *core
-    command: /start-celery-worker.sh main_queue 1
-    labels:
-      - "traefik.enable=false"
-    networks:
-      - demo
-
-  celery-beat:
-    <<: *background
-    command: /start-celery-beat.sh
-    networks:
-      - demo
-
-  db-init:
-    <<: *background
-    depends_on:
-      - postgres
-    restart: "no"
-    command: /start-db-init.sh
-    ports: [ ]
-    networks:
-      - demo
-
-  postgres:
-    image: postgres:latest
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/pgdata
-    environment:
-      - PGDATA=/var/lib/postgresql/data/pgdata
-    env_file:
-      - .env
-    restart: "unless-stopped"
     expose:
-      - "5432"
-    networks:
-      - demo
+      - "80"
 
-  rabbitmq:
-    image: rabbitmq:3.11-management
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq/mnesia
-    env_file:
-      - .env
-    restart: "unless-stopped"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.rabbitmq.rule=Host(`rabbitmq.localhost`)"
-      - "traefik.http.routers.rabbitmq.service=rabbitmq"
-      - "traefik.http.services.rabbitmq.loadbalancer.server.port=15672"
-    networks:
-      - demo
+    postgres:
+      image: postgres:latest
+      volumes:
+        - postgres_data:/var/lib/postgresql/data/pgdata
+      environment:
+        - PGDATA=/var/lib/postgresql/data/pgdata
+      env_file:
+        - .env
+      restart: "unless-stopped"
+      networks:
+        - demo
+      expose:
+        - "5432"
+
+
+    rabbitmq:
+      image: rabbitmq:3.11-management
+      volumes:
+        - rabbitmq_data:/var/lib/rabbitmq/mnesia
+      env_file:
+        - .env
+      restart: "unless-stopped"
+      networks:
+        - demo
+      expose:
+        - "15672"
+        - "5672"
+                
