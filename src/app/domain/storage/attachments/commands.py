@@ -13,11 +13,11 @@ from app.domain.storage.attachments.repositories import AttachmentRepository
 
 class AttachmentCreateCommand:
     def __init__(
-            self,
-            repository: AttachmentRepository,
-            file_storage: FileStorage,
-            bucket: str,
-            max_name_len: int = 60,
+        self,
+        repository: AttachmentRepository,
+        file_storage: FileStorage,
+        bucket: str,
+        max_name_len: int = 60,
     ):
         self.repository = repository
         self.file_storage = file_storage
@@ -61,14 +61,16 @@ class AttachmentCreateCommand:
 
 class AttachmentDataRetrieveCommand:
     def __init__(
-            self,
-            file_storage: FileStorage,
-            bucket: str,
+        self,
+        file_storage: FileStorage,
+        bucket: str,
     ):
         self.file_storage = file_storage
         self.bucket = bucket
 
     @asynccontextmanager
-    async def __call__(self, attachment: schemas.Attachment) -> AsyncIterator[IO[bytes]]:
+    async def __call__(
+        self, attachment: schemas.Attachment
+    ) -> AsyncIterator[IO[bytes]]:
         async with self.file_storage.receive_file(self.bucket, attachment.path) as file:
             yield file

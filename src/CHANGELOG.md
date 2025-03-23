@@ -1,3 +1,7 @@
+### 0.0.8
+
+- Added the roles of "student" and "teacher"
+
 ### 0.0.7
 
 - Move to a8t-tools

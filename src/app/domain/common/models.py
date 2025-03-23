@@ -1,10 +1,10 @@
 import datetime
+import random
 import secrets
 import uuid
-import random
 
 import sqlalchemy as sa
-from sqlalchemy import orm, Column, Integer, String, ForeignKey
+from sqlalchemy import Column, ForeignKey, Integer, String, orm
 from sqlalchemy.dialects.postgresql import ARRAY, UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -14,8 +14,12 @@ from sqlalchemy.sql import func
 class Base:
     __tablename__: str
 
-    id: orm.Mapped[uuid.UUID] = orm.mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
-    created_at: orm.Mapped[datetime.datetime] = orm.mapped_column(sa.DateTime(timezone=True), server_default=func.now())
+    id: orm.Mapped[uuid.UUID] = orm.mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True
+    )
+    created_at: orm.Mapped[datetime.datetime] = orm.mapped_column(
+        sa.DateTime(timezone=True), server_default=func.now()
+    )
     updated_at: orm.Mapped[datetime.datetime] = orm.mapped_column(
         sa.DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
@@ -60,7 +64,12 @@ class Token(Base):
     __tablename__ = "token"
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(UUID(as_uuid=True), ForeignKey(User.id, ondelete="CASCADE"), index=True, nullable=True)
+    user_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey(User.id, ondelete="CASCADE"),
+        index=True,
+        nullable=True,
+    )
     refresh_token_id = Column(UUID(as_uuid=True))
 
     user = relationship("User", back_populates="token")
@@ -70,10 +79,15 @@ class PasswordResetCode(Base):
     __tablename__ = "password_reset_code"
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(UUID(as_uuid=True), ForeignKey(User.id, ondelete="CASCADE"), index=True, nullable=True)
+    user_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey(User.id, ondelete="CASCADE"),
+        index=True,
+        nullable=True,
+    )
     code = Column(String, nullable=False)
 
-    user_id_user_fk = ForeignKey('user.id')
+    user_id_user_fk = ForeignKey("user.id")
 
     user = relationship("User", back_populates="password_reset_code")
 
@@ -83,7 +97,7 @@ class PasswordResetCode(Base):
 
 
 class EmailCode(Base):
-    __tablename__ = 'email_code'
+    __tablename__ = "email_code"
 
     id = Column(Integer, primary_key=True)
     email: orm.Mapped[str] = orm.mapped_column(String, nullable=False)

@@ -6,14 +6,10 @@ from app.api import schemas
 
 auth = APIRouter(prefix="/authentication")
 auth.include_router(
-    app.domain.users.registration.views.router,
-    prefix="/v1",
-    tags=["Authentication"]
+    app.domain.users.registration.views.router, prefix="/v1", tags=["Authentication"]
 )
 auth.include_router(
-    app.domain.users.auth.views.router,
-    prefix="/v1",
-    tags=["Authentication"]
+    app.domain.users.auth.views.router, prefix="/v1", tags=["Authentication"]
 )
 
 router = APIRouter(

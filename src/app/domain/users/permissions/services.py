@@ -8,9 +8,9 @@ from app.domain.users.permissions.queries import UserPermissionListQuery
 
 class UserPermissionService:
     def __init__(
-            self,
-            query: UserPermissionListQuery,
-            current_user_token_payload_query: CurrentUserTokenPayloadQuery,
+        self,
+        query: UserPermissionListQuery,
+        current_user_token_payload_query: CurrentUserTokenPayloadQuery,
     ) -> None:
         self.query = query
         self.current_user_token_payload_query = current_user_token_payload_query

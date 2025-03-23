@@ -3,14 +3,12 @@ from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import EmailStr
-
 from a8t_tools.db import pagination as pg
 from a8t_tools.db import sorting as sr
+from pydantic import EmailStr
 
 from app.domain.common.enums import UserStatuses
 from app.domain.common.schemas import APIModel
-
 from app.domain.storage.attachments.schemas import Attachment
 
 
@@ -42,6 +40,7 @@ class UserCredentialsRegist(APIModel):
     firstname: str
     lastname: str
     email: str
+    permissions: set[str] | None = None
     password: str
 
 

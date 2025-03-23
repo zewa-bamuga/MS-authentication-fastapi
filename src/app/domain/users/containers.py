@@ -1,4 +1,7 @@
 from a8t_tools.bus.producer import TaskProducer
+from a8t_tools.db.transactions import AsyncDbTransaction
+from a8t_tools.security.hashing import PasswordHashService
+from a8t_tools.security.tokens import JwtHmacService, JwtRsaService, token_ctx_var
 from dependency_injector import containers, providers
 from passlib.context import CryptContext
 
@@ -12,34 +15,44 @@ from app.domain.users.auth.queries import (
     CurrentUserTokenPayloadQuery,
     CurrentUserTokenQuery,
     TokenPayloadQuery,
+    UserProfileMeQuery,
 )
-from app.domain.users.management.commands import UserManagementCreateCommand, UserManagementPartialUpdateCommand
+from app.domain.users.auth.repositories import TokenRepository
+from app.domain.users.core.commands import (
+    UpdatePasswordConfirmCommand,
+    UpdatePasswordRequestCommand,
+    UserActivateCommand,
+    UserCreateCommand,
+    UserPartialUpdateCommand,
+)
+from app.domain.users.core.queries import (
+    UserListQuery,
+    UserRetrieveByCodeQuery,
+    UserRetrieveByEmailQuery,
+    UserRetrieveByUsernameQuery,
+    UserRetrieveQuery,
+)
+from app.domain.users.core.repositories import (
+    EmailRpository,
+    UpdatePasswordRepository,
+    UserRepository,
+)
+from app.domain.users.management.commands import (
+    UserManagementCreateCommand,
+    UserManagementPartialUpdateCommand,
+)
 from app.domain.users.management.queries import (
     UserManagementListQuery,
     UserManagementRetrieveQuery,
 )
-from app.domain.users.auth.repositories import TokenRepository
-from app.domain.users.core.commands import (
-    UserActivateCommand,
-    UserCreateCommand,
-    UserPartialUpdateCommand, UpdatePasswordRequestCommand,
-    UpdatePasswordConfirmCommand,
-)
-from app.domain.users.core.queries import (
-    UserListQuery,
-    UserRetrieveByUsernameQuery,
-    UserRetrieveQuery, UserRetrieveByEmailQuery, UserRetrieveByCodeQuery,
-)
-from app.domain.users.registration.hi import Generate_Password, First_Registration
-from app.domain.users.core.repositories import UserRepository, \
-    UpdatePasswordRepository, EmailRpository
 from app.domain.users.permissions.queries import UserPermissionListQuery
 from app.domain.users.permissions.services import UserPermissionService
-from app.domain.users.registration.commands import UserRegisterCommand, UserEmailVerificationRequestCommand, \
-    UserEmailVerificationConfirmCommand
-from a8t_tools.db.transactions import AsyncDbTransaction
-from a8t_tools.security.hashing import PasswordHashService
-from a8t_tools.security.tokens import JwtHmacService, JwtRsaService, token_ctx_var
+from app.domain.users.registration.commands import (
+    UserEmailVerificationConfirmCommand,
+    UserEmailVerificationRequestCommand,
+    UserRegisterCommand,
+)
+from app.domain.users.registration.hi import First_Registration, Generate_Password
 
 
 class UserContainer(containers.DeclarativeContainer):
@@ -180,7 +193,7 @@ class UserContainer(containers.DeclarativeContainer):
     get_userID_by_code = providers.Factory(
         UserRetrieveByCodeQuery,
         update_password_repository=repository_update_password,
-        user_repository=user_repository
+        user_repository=user_repository,
     )
 
     update_password_confirm_command = providers.Factory(
@@ -270,4 +283,9 @@ class UserContainer(containers.DeclarativeContainer):
         UserManagementPartialUpdateCommand,
         permission_service=permission_service,
         command=partial_update_command,
+    )
+
+    profile_me_query = providers.Factory(
+        UserProfileMeQuery,
+        current_user_query=current_user_query,
     )

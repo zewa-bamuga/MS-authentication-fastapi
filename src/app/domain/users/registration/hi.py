@@ -13,7 +13,9 @@ def Generate_Password(min_length=8, max_length=8):
 
 
 def generate_valid_password(length):
-    password = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(length))
+    password = "".join(
+        random.choice(string.ascii_letters + string.digits) for _ in range(length)
+    )
 
     if not any(char.isdigit() for char in password):
         return generate_valid_password(length)
@@ -30,9 +32,9 @@ async def First_Registration(email: str, password: str):
     email_password = "abqiulywjvibrefg"
 
     msg = EmailMessage()
-    msg['Subject'] = "Подтверждение регистрации"
-    msg['From'] = email_address
-    msg['To'] = email
+    msg["Subject"] = "Подтверждение регистрации"
+    msg["From"] = email_address
+    msg["To"] = email
 
     html_content = f"""\
     <html>
@@ -50,10 +52,11 @@ async def First_Registration(email: str, password: str):
     """
 
     msg.set_content(
-        "Дорогой сотрудник Отдела Образовательных Программ! Мы рады приветствовать тебя на платформе ООП. Твой пароль для входа: {password}. Твой Отдел Образовательных Программ <3")
-    msg.add_alternative(html_content, subtype='html')
+        "Дорогой сотрудник Отдела Образовательных Программ! Мы рады приветствовать тебя на платформе ООП. Твой пароль для входа: {password}. Твой Отдел Образовательных Программ <3"
+    )
+    msg.add_alternative(html_content, subtype="html")
 
-    with smtplib.SMTP_SSL('smtp.yandex.ru', 465) as smtp:
+    with smtplib.SMTP_SSL("smtp.yandex.ru", 465) as smtp:
         smtp.login(email_address, email_password)
         smtp.send_message(msg)
 
@@ -63,9 +66,9 @@ async def send_hello(user: User):
     email_password = "abqiulywjvibrefg"
 
     msg = EmailMessage()
-    msg['Subject'] = "Подтверждение регистрации"
-    msg['From'] = email_address
-    msg['To'] = user.email
+    msg["Subject"] = "Подтверждение регистрации"
+    msg["From"] = email_address
+    msg["To"] = user.email
 
     html_content = f"""\
     <html>
@@ -82,10 +85,11 @@ async def send_hello(user: User):
     """
 
     msg.set_content(
-        "Дорогой пользователь платформы Отдела Образовательных Программ! Мы рады приветствовать тебя! Твой Отдел Образовательных Программ <3")
-    msg.add_alternative(html_content, subtype='html')
+        "Дорогой пользователь платформы Отдела Образовательных Программ! Мы рады приветствовать тебя! Твой Отдел Образовательных Программ <3"
+    )
+    msg.add_alternative(html_content, subtype="html")
 
-    with smtplib.SMTP_SSL('smtp.yandex.ru', 465) as smtp:
+    with smtplib.SMTP_SSL("smtp.yandex.ru", 465) as smtp:
         smtp.login(email_address, email_password)
         smtp.send_message(msg)
 
@@ -95,9 +99,9 @@ async def send_user_email_verification(email: str, code: int):
     email_password = "abqiulywjvibrefg"
 
     msg = EmailMessage()
-    msg['Subject'] = "Подтверждение почты"
-    msg['From'] = email_address
-    msg['To'] = email
+    msg["Subject"] = "Подтверждение почты"
+    msg["From"] = email_address
+    msg["To"] = email
 
     html_content = f"""\
     <html>
@@ -119,9 +123,9 @@ async def send_user_email_verification(email: str, code: int):
     msg.set_content(
         f"Здравствуйте,\n\nВы запросили сброс пароля на платформе Отдела Образовательных Программ.\n\nКод для сброса пароля: {code}\n\nЕсли вы не запрашивали сброс пароля, проигнорируйте это письмо.\n\nС уважением,\nВаш Отдел Образовательных Программ"
     )
-    msg.add_alternative(html_content, subtype='html')
+    msg.add_alternative(html_content, subtype="html")
 
-    with smtplib.SMTP_SSL('smtp.yandex.ru', 465) as smtp:
+    with smtplib.SMTP_SSL("smtp.yandex.ru", 465) as smtp:
         smtp.login(email_address, email_password)
         smtp.send_message(msg)
 
@@ -131,9 +135,9 @@ async def send_password_reset_email(email: str, code: str):
     email_password = "abqiulywjvibrefg"
 
     msg = EmailMessage()
-    msg['Subject'] = "Сброс пароля"
-    msg['From'] = email_address
-    msg['To'] = email
+    msg["Subject"] = "Сброс пароля"
+    msg["From"] = email_address
+    msg["To"] = email
 
     html_content = f"""\
     <html>
@@ -155,9 +159,9 @@ async def send_password_reset_email(email: str, code: str):
     msg.set_content(
         f"Здравствуйте,\n\nВы запросили сброс пароля на платформе Отдела Образовательных Программ.\n\nКод для сброса пароля: {code}\n\nЕсли вы не запрашивали сброс пароля, проигнорируйте это письмо.\n\nС уважением,\nВаш Отдел Образовательных Программ"
     )
-    msg.add_alternative(html_content, subtype='html')
+    msg.add_alternative(html_content, subtype="html")
 
-    with smtplib.SMTP_SSL('smtp.yandex.ru', 465) as smtp:
+    with smtplib.SMTP_SSL("smtp.yandex.ru", 465) as smtp:
         smtp.login(email_address, email_password)
         smtp.send_message(msg)
 
@@ -168,9 +172,9 @@ async def lol(email: str, code: str):
     # code = PasswordResetCode.generate_code()
 
     msg = EmailMessage()
-    msg['Subject'] = "Сброс пароля"
-    msg['From'] = email_address
-    msg['To'] = email
+    msg["Subject"] = "Сброс пароля"
+    msg["From"] = email_address
+    msg["To"] = email
     msg.set_content(
         f"""\
         Здравствуйте,
@@ -186,6 +190,6 @@ async def lol(email: str, code: str):
         """
     )
 
-    with smtplib.SMTP_SSL('smtp.yandex.ru', 465) as smtp:
+    with smtplib.SMTP_SSL("smtp.yandex.ru", 465) as smtp:
         smtp.login(email_address, email_password)
         smtp.send_message(msg)

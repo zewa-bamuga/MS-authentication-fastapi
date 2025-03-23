@@ -1,18 +1,17 @@
 import logging
 
+from a8t_tools.bus.celery import CeleryBackend
+from a8t_tools.bus.consumer import setup_consumers
+from a8t_tools.bus.producer import TaskProducer
+from a8t_tools.bus.scheduler import setup_schedule
+from a8t_tools.db.transactions import AsyncDbTransaction
+from a8t_tools.db.utils import UnitOfWork
+from a8t_tools.logging.utils import setup_logging
 from a8t_tools.storage.facade import FileStorage
 from a8t_tools.storage.local_storage import LocalStorageBackend
 from a8t_tools.storage.s3_storage import S3StorageBackend
 from celery import Celery
-
-from a8t_tools.bus.consumer import setup_consumers
-from a8t_tools.bus.producer import TaskProducer
-from a8t_tools.bus.scheduler import setup_schedule
 from dependency_injector import containers, providers
-from a8t_tools.db.transactions import AsyncDbTransaction
-from a8t_tools.db.utils import UnitOfWork
-from a8t_tools.logging.utils import setup_logging
-from a8t_tools.bus.celery import CeleryBackend
 
 from app.config import Settings
 from app.domain.storage.attachments.containers import AttachmentContainer
@@ -38,17 +37,23 @@ class Container(containers.DeclarativeContainer):
 
     unit_of_work = providers.Factory(UnitOfWork, transaction=transaction)
 
-    celery_app: providers.Provider[Celery] = providers.Singleton(Celery, "worker", broker=config.mq.broker_uri)
+    celery_app: providers.Provider[Celery] = providers.Singleton(
+        Celery, "worker", broker=config.mq.broker_uri
+    )
 
     celery_backend = providers.Factory(CeleryBackend, celery_app=celery_app)
 
     tasks_backend = celery_backend
 
-    consumers = providers.Resource(setup_consumers, tasks_backend=tasks_backend, tasks_params=config.tasks.params)
+    consumers = providers.Resource(
+        setup_consumers, tasks_backend=tasks_backend, tasks_params=config.tasks.params
+    )
 
     tasks_scheduler = celery_backend
 
-    schedules = providers.Resource(setup_schedule, scheduler=tasks_scheduler, raw_schedules=config.tasks.schedules)
+    schedules = providers.Resource(
+        setup_schedule, scheduler=tasks_scheduler, raw_schedules=config.tasks.schedules
+    )
 
     task_producer = providers.Factory(TaskProducer, backend=tasks_backend)
 
@@ -69,7 +74,9 @@ class Container(containers.DeclarativeContainer):
     file_storage = providers.Factory(
         FileStorage,
         backend=providers.Callable(
-            lambda use_s3, local_backend, s3_backend: s3_backend if (use_s3 is True) else local_backend,
+            lambda use_s3, local_backend, s3_backend: s3_backend
+            if (use_s3 is True)
+            else local_backend,
             config.storage.use_s3,
             local_storage_backend,
             s3_storage_backend,

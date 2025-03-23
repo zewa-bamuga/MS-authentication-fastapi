@@ -10,7 +10,9 @@ from app.domain.common import enums, exceptions
 
 
 async def universal_exception_handler(request: Request, exc: Exception) -> JSONResponse:
-    response_content = SimpleApiError(code=enums.ErrorCodes.api_error, message="Unknown error").model_dump()
+    response_content = SimpleApiError(
+        code=enums.ErrorCodes.api_error, message="Unknown error"
+    ).model_dump()
     return JSONResponse(
         status_code=500,
         content=response_content,
@@ -20,9 +22,13 @@ async def universal_exception_handler(request: Request, exc: Exception) -> JSONR
 def typed_exception_handler(
     exc_type: type[BaseModel],
 ) -> Callable[[Request, exceptions.GenericApiError], Coroutine[Any, Any, JSONResponse]]:
-    async def exception_handler(_: Request, exc: exceptions.GenericApiError) -> JSONResponse:
+    async def exception_handler(
+        _: Request, exc: exceptions.GenericApiError
+    ) -> JSONResponse:
         response_content = exc_type.model_validate(exc).model_dump()
-        partial_resp = functools.partial(JSONResponse, status_code=exc.status_code, content=response_content)
+        partial_resp = functools.partial(
+            JSONResponse, status_code=exc.status_code, content=response_content
+        )
         if exc.headers:
             return partial_resp(exc.headers)
         return partial_resp()
