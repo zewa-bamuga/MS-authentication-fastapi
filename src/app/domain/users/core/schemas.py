@@ -21,6 +21,7 @@ class User(APIModel):
     status: UserStatuses
     avatar_attachment_id: UUID | None = None
     created_at: datetime
+    is_subscribed: bool = False
 
 
 class UserDetails(User):
@@ -42,6 +43,7 @@ class UserCredentialsRegist(APIModel):
     email: str
     permissions: set[str] | None = None
     password: str
+    is_subscribed: bool = False
 
 
 class UserCreate(APIModel):
@@ -52,6 +54,7 @@ class UserCreate(APIModel):
     password_hash: str
     avatar_attachment_id: UUID | None = None
     permissions: set[str] | None = None
+    is_subscribed: bool = False
 
 
 class UserCreateFull(UserCreate):
@@ -65,6 +68,7 @@ class UserPartialUpdate(APIModel):
     password_hash: str | None = None
     permissions: set[str] | None = None
     status: str | None = None
+    is_subscribed: bool = False
 
 
 class UserPartialUpdateFull(APIModel):
@@ -82,6 +86,7 @@ class UserInternal(APIModel):
     avatar_attachment_id: UUID | None = None
     status: UserStatuses
     created_at: datetime
+    is_subscribed: bool = False
 
 
 class UserSorts(enum.StrEnum):

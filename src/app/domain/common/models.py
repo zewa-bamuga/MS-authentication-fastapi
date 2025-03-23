@@ -50,6 +50,10 @@ class User(Base):
     )
     permissions: orm.Mapped[set[str] | None] = orm.mapped_column(ARRAY(sa.String))
 
+    is_subscribed: orm.Mapped[bool] = orm.mapped_column(
+        sa.Boolean, nullable=False, server_default=sa.text("false")
+    )
+
     avatar_attachment = relationship(
         "Attachment",
         backref="user_avatar_attachment",
@@ -58,6 +62,7 @@ class User(Base):
     )
     token = relationship("Token", back_populates="user")
     password_reset_code = relationship("PasswordResetCode", back_populates="user")
+
 
 
 class Token(Base):
