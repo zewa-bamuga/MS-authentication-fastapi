@@ -1,14 +1,17 @@
 from uuid import UUID
+
 from a8t_tools.db.pagination import Paginated
 
 from app.domain.users.core.queries import UserListQuery, UserRetrieveQuery
-from app.domain.users.core.schemas import UserDetailsFull, UserListRequestSchema, User
+from app.domain.users.core.schemas import User, UserDetailsFull, UserListRequestSchema
 from app.domain.users.permissions.schemas import BasePermissions
 from app.domain.users.permissions.services import UserPermissionService
 
 
 class UserManagementListQuery:
-    def __init__(self, permission_service: UserPermissionService, query: UserListQuery) -> None:
+    def __init__(
+        self, permission_service: UserPermissionService, query: UserListQuery
+    ) -> None:
         self.query = query
         self.permission_service = permission_service
 
@@ -19,9 +22,9 @@ class UserManagementListQuery:
 
 class UserManagementRetrieveQuery:
     def __init__(
-            self,
-            query: UserRetrieveQuery,
-            permission_service: UserPermissionService,
+        self,
+        query: UserRetrieveQuery,
+        permission_service: UserPermissionService,
     ) -> None:
         self.query = query
         self.permission_service = permission_service
@@ -30,16 +33,3 @@ class UserManagementRetrieveQuery:
         await self.permission_service.assert_permissions(BasePermissions.superuser)
         user = await self.query(payload)
         return UserDetailsFull.model_validate(user)
-
-#
-# class EmailManagementRetrieveQuery:
-#     def __init__(
-#             self,
-#             query: EmailRetrieveQuery,
-#     ) -> None:
-#         self.query = query
-#
-#     async def __call__(self, payload: str) -> UserDetailsFull:
-#         await self.permission_service.assert_permissions(BasePermissions.superuser)
-#         email = await self.query(payload)
-#         return UserDetailsFull.model_validate(email)

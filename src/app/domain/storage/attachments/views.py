@@ -1,9 +1,8 @@
 from uuid import UUID
 
+from a8t_tools.db import pagination, sorting
 from dependency_injector import wiring
 from fastapi import APIRouter, Depends, UploadFile
-
-from a8t_tools.db import pagination, sorting
 
 from app.api import deps
 from app.containers import Container
@@ -23,15 +22,19 @@ router = APIRouter()
 )
 @wiring.inject
 async def get_attachments_list(
-        query: AttachmentListQuery = Depends(wiring.Provide[Container.attachment.list_query]),
-        pagination: pagination.PaginationCallable[schemas.Attachment] = Depends(
-            deps.get_skip_limit_pagination_dep(schemas.Attachment)
-        ),
-        sorting: sorting.SortingData[schemas.AttachmentSorts] = Depends(
-            deps.get_sort_order_sorting_dep(schemas.AttachmentSorts)
-        ),
+    query: AttachmentListQuery = Depends(
+        wiring.Provide[Container.attachment.list_query]
+    ),
+    pagination: pagination.PaginationCallable[schemas.Attachment] = Depends(
+        deps.get_skip_limit_pagination_dep(schemas.Attachment)
+    ),
+    sorting: sorting.SortingData[schemas.AttachmentSorts] = Depends(
+        deps.get_sort_order_sorting_dep(schemas.AttachmentSorts)
+    ),
 ) -> pagination.Paginated[schemas.Attachment]:
-    return await query(schemas.AttachmentListRequestSchema(pagination=pagination, sorting=sorting))
+    return await query(
+        schemas.AttachmentListRequestSchema(pagination=pagination, sorting=sorting)
+    )
 
 
 @router.get(
@@ -40,8 +43,10 @@ async def get_attachments_list(
 )
 @wiring.inject
 async def get_attachment_details(
-        attachment_id: UUID,
-        query: AttachmentRetrieveQuery = Depends(wiring.Provide[Container.attachment.retrieve_query]),
+    attachment_id: UUID,
+    query: AttachmentRetrieveQuery = Depends(
+        wiring.Provide[Container.attachment.retrieve_query]
+    ),
 ) -> schemas.Attachment:
     return await query(attachment_id)
 
@@ -49,8 +54,10 @@ async def get_attachment_details(
 @router.post("", response_model=schemas.Attachment)
 @wiring.inject
 async def create_attachment(
-        attachment: UploadFile,
-        command: AttachmentCreateCommand = Depends(wiring.Provide[Container.attachment.create_command]),
+    attachment: UploadFile,
+    command: AttachmentCreateCommand = Depends(
+        wiring.Provide[Container.attachment.create_command]
+    ),
 ) -> schemas.Attachment:
     return await command(
         schemas.AttachmentCreate(

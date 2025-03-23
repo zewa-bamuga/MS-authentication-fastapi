@@ -9,9 +9,9 @@ from app.domain.users.registration.commands import UserRegisterCommand
 
 class UserManagementCreateCommand:
     def __init__(
-            self,
-            permission_service: UserPermissionService,
-            command: UserRegisterCommand,
+        self,
+        permission_service: UserPermissionService,
+        command: UserRegisterCommand,
     ) -> None:
         self.permission_service = permission_service
         self.command = command
@@ -23,13 +23,15 @@ class UserManagementCreateCommand:
 
 class UserManagementPartialUpdateCommand:
     def __init__(
-            self,
-            permission_service: UserPermissionService,
-            command: UserPartialUpdateCommand,
+        self,
+        permission_service: UserPermissionService,
+        command: UserPartialUpdateCommand,
     ) -> None:
         self.permission_service = permission_service
         self.command = command
 
-    async def __call__(self, user_id: uuid.UUID, payload: schemas.UserPartialUpdateFull) -> schemas.UserDetailsFull:
+    async def __call__(
+        self, user_id: uuid.UUID, payload: schemas.UserPartialUpdateFull
+    ) -> schemas.UserDetailsFull:
         await self.permission_service.assert_permissions(BasePermissions.superuser)
         return await self.command(user_id, payload)

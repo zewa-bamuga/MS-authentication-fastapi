@@ -11,8 +11,12 @@ class AttachmentListQuery:
     def __init__(self, repository: AttachmentRepository):
         self.repository = repository
 
-    async def __call__(self, payload: schemas.AttachmentListRequestSchema) -> Paginated[schemas.Attachment]:
-        return await self.repository.get_attachments(payload.pagination, payload.sorting)
+    async def __call__(
+        self, payload: schemas.AttachmentListRequestSchema
+    ) -> Paginated[schemas.Attachment]:
+        return await self.repository.get_attachments(
+            payload.pagination, payload.sorting
+        )
 
 
 class AttachmentRetrieveQuery:

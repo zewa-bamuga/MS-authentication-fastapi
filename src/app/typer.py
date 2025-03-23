@@ -4,13 +4,13 @@ from collections.abc import Callable
 from typing import Any
 
 import typer
+from a8t_tools.db.exceptions import DatabaseError
 from loguru import logger
 
 import app.domain
 from app.containers import Container
 from app.domain.users.core.schemas import UserCreate
 from app.domain.users.permissions.schemas import BasePermissions
-from a8t_tools.db.exceptions import DatabaseError
 
 
 def async_to_sync(fn: Callable[..., Any]) -> Callable[..., Any]:
@@ -45,10 +45,10 @@ async def noop() -> None:
 @typer_app.command()
 @async_to_sync
 async def create_superuser(
-        firstname: str = typer.Argument(...),
-        lastname: str = typer.Argument(...),
-        email: str = typer.Argument(...),
-        password: str = typer.Argument(...),
+    firstname: str = typer.Argument(...),
+    lastname: str = typer.Argument(...),
+    email: str = typer.Argument(...),
+    password: str = typer.Argument(...),
 ) -> None:
     password_hash = await container.user.password_hash_service().hash(password)
     command = container.user.create_command()

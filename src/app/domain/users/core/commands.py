@@ -6,21 +6,23 @@ from fastapi import HTTPException
 from loguru import logger
 
 from app.domain.common import enums
-from app.domain.common.exceptions import NotFoundError
 from app.domain.common.models import PasswordResetCode
 from app.domain.common.schemas import IdContainer
 from app.domain.users.core import schemas
-from app.domain.users.core.queries import UserRetrieveByEmailQuery, UserRetrieveByCodeQuery
-from app.domain.users.core.repositories import UserRepository, UpdatePasswordRepository
+from app.domain.users.core.queries import (
+    UserRetrieveByCodeQuery,
+    UserRetrieveByEmailQuery,
+)
+from app.domain.users.core.repositories import UpdatePasswordRepository, UserRepository
 from app.domain.users.core.schemas import EmailForCode
 from app.domain.users.registration.hi import send_password_reset_email
 
 
 class UpdatePasswordRequestCommand:
     def __init__(
-            self,
-            user_retrieve_by_email_query: UserRetrieveByEmailQuery,
-            repository: UpdatePasswordRepository,
+        self,
+        user_retrieve_by_email_query: UserRetrieveByEmailQuery,
+        repository: UpdatePasswordRepository,
     ):
         self.user_retrieve_by_email_query = user_retrieve_by_email_query
         self.repository = repository
@@ -48,10 +50,14 @@ class UserPartialUpdateCommand:
     def __init__(self, user_repository: UserRepository):
         self.user_repository = user_repository
 
-    async def __call__(self, user_id: UUID, password_hash: str) -> schemas.UserDetailsFull:
+    async def __call__(
+        self, user_id: UUID, password_hash: str
+    ) -> schemas.UserDetailsFull:
         payload = schemas.UserPartialUpdate(password_hash=password_hash)
         await self.user_repository.partial_update_user(user_id, payload)
-        user = await self.user_repository.get_user_by_filter_or_none(schemas.UserWhere(id=user_id))
+        user = await self.user_repository.get_user_by_filter_or_none(
+            schemas.UserWhere(id=user_id)
+        )
 
         assert user
         return schemas.UserDetailsFull.model_validate(user)
@@ -59,12 +65,12 @@ class UserPartialUpdateCommand:
 
 class UpdatePasswordConfirmCommand:
     def __init__(
-            self,
-            user_retrieve_by_email_query: UserRetrieveByEmailQuery,
-            user_retrieve_by_code_query: UserRetrieveByCodeQuery,
-            repository: UserRepository,
-            user_partial_update_command: UserPartialUpdateCommand,
-            password_hash_service: PasswordHashService,
+        self,
+        user_retrieve_by_email_query: UserRetrieveByEmailQuery,
+        user_retrieve_by_code_query: UserRetrieveByCodeQuery,
+        repository: UserRepository,
+        user_partial_update_command: UserPartialUpdateCommand,
+        password_hash_service: PasswordHashService,
     ):
         self.user_retrieve_by_email_query = user_retrieve_by_email_query
         self.user_retrieve_by_code_query = user_retrieve_by_code_query
@@ -98,14 +104,14 @@ class UpdatePasswordConfirmCommand:
 
 class UserCreateCommand:
     def __init__(
-            self,
-            user_repository: UserRepository,
-            task_producer: TaskProducer,
+        self,
+        user_repository: UserRepository,
+        task_producer: TaskProducer,
     ):
         self.user_repository = user_repository
         self.task_producer = task_producer
 
-    async def __call__(self, payload: schemas.UserCreate) -> schemas.UserDetails:
+    async def __call__(self, payload: schemas.UserCreate) -> schemas.UserDetailsFull:
         user_id_container = await self.user_repository.create_user(
             schemas.UserCreateFull(
                 status=enums.UserStatuses.unconfirmed,
@@ -114,10 +120,12 @@ class UserCreateCommand:
         )
         logger.info(f"User created: {user_id_container.id}")
         await self._enqueue_user_activation(user_id_container)
-        user = await self.user_repository.get_user_by_filter_or_none(schemas.UserWhere(id=user_id_container.id))
+        user = await self.user_repository.get_user_by_filter_or_none(
+            schemas.UserWhere(id=user_id_container.id)
+        )
         assert user
 
-        return schemas.UserDetails.model_validate(user)
+        return schemas.UserDetailsFull.model_validate(user)
 
     async def _enqueue_user_activation(self, user_id_container: IdContainer) -> None:
         await self.task_producer.fire_task(
@@ -129,8 +137,8 @@ class UserCreateCommand:
 
 class UserActivateCommand:
     def __init__(
-            self,
-            repository: UserRepository,
+        self,
+        repository: UserRepository,
     ):
         self.repository = repository
 

@@ -30,3 +30,39 @@ migration-downgrade:
 
 logs:
 	docker-compose logs -f
+
+# Format & Lint
+
+isort:
+	isort .
+
+black:
+	black .
+
+# Unix
+#---------
+pyupgrade:
+	pyupgrade `find ./src -name "*.py" -type f`
+#---------
+
+flake8:
+	flake8 .
+
+mypy:
+	mypy .
+
+pyright:
+	pyright
+
+format: isort pyupgrade black
+
+lint: flake8 pyright
+
+lint-all: flake8 mypy pyright
+
+format-lint: format lint
+
+poetry-make-format-lint:
+	poetry run make format-lint
+
+prepare: install poetry-make-format-lint

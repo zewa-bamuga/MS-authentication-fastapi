@@ -11,12 +11,12 @@ class GenericApiError(Exception):
     headers: dict[str, str] | None = None
 
     def __init__(
-            self,
-            code: ErrorCodes | None = None,
-            message: str | None = None,
-            status_code: int | None = None,
-            headers: dict[str, str] | None = None,
-            *args: Any,
+        self,
+        code: ErrorCodes | None = None,
+        message: str | None = None,
+        status_code: int | None = None,
+        headers: dict[str, str] | None = None,
+        *args: Any,
     ) -> None:
         if code is not None:
             self.code = code
@@ -41,10 +41,10 @@ class AuthError(GenericApiError):
     status_code: int = 401
 
     def __init__(
-            self,
-            code: enums.AuthErrorCodes,
-            *args: Any,
-            **kwargs: Any,
+        self,
+        code: enums.AuthErrorCodes,
+        *args: Any,
+        **kwargs: Any,
     ) -> None:
         self.payload = {
             "code": code,
