@@ -28,7 +28,7 @@ def create_fastapi_app(project_name: str, version: str, description: str) -> Fas
         title=project_name,
         version=version,
         description=description,
-        docs_url=(config.api.prefix + "/docs") if config.api.show_docs else None,
+        docs_url=("authentication//doc") if config.api.show_docs else None,
         openapi_url=(config.api.prefix + "/openapi.json")
         if config.api.show_docs
         else None,
