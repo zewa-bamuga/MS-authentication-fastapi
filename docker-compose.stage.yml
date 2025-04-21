@@ -1,0 +1,59 @@
+version: '3'
+
+networks:
+  demo:
+    external: true
+
+volumes:
+  postgres_data: {}
+  rabbitmq_data: {}
+  fastapi_media: {}
+
+services:
+  fastapi: &core
+    build:
+      context: .
+      dockerfile: ./deploy/compose/local/fastapi.dockerfile
+    volumes:
+      - ./src:/src
+      - fastapi_media:/media
+    environment:
+      - MODULE_NAME=app.fastapi
+    depends_on:
+      - postgres
+      - rabbitmq
+    command: /start-reload-fastapi.sh
+    env_file:
+      - .env
+    restart: "unless-stopped"
+    networks:
+      - demo
+    expose:
+      - "80"
+
+  postgres:
+    image: postgres:latest
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/pgdata
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    env_file:
+      - .env
+    restart: "unless-stopped"
+    networks:
+      - demo
+    expose:
+      - "5432"
+
+  rabbitmq:
+    image: rabbitmq:3.11-management
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq/mnesia
+    env_file:
+      - .env
+    restart: "unless-stopped"
+    networks:
+      - demo
+    expose:
+      - "15672"
+      - "5672"
