@@ -1,58 +1,44 @@
 from a8t_tools.bus.producer import TaskProducer
 from a8t_tools.db.transactions import AsyncDbTransaction
 from a8t_tools.security.hashing import PasswordHashService
-from a8t_tools.security.tokens import JwtHmacService, JwtRsaService, token_ctx_var
+from a8t_tools.security.tokens import (JwtHmacService, JwtRsaService,
+                                       token_ctx_var)
 from dependency_injector import containers, providers
 from passlib.context import CryptContext
 
-from app.domain.users.auth.commands import (
-    TokenCreateCommand,
-    TokenRefreshCommand,
-    UserAuthenticateCommand,
-)
-from app.domain.users.auth.queries import (
-    CurrentUserQuery,
-    CurrentUserTokenPayloadQuery,
-    CurrentUserTokenQuery,
-    TokenPayloadQuery,
-    UserProfileMeQuery,
-)
+from app.domain.users.auth.commands import (TokenCreateCommand,
+                                            TokenRefreshCommand,
+                                            UserAuthenticateCommand)
+from app.domain.users.auth.queries import (CurrentUserQuery,
+                                           CurrentUserTokenPayloadQuery,
+                                           CurrentUserTokenQuery,
+                                           TokenPayloadQuery,
+                                           UserProfileMeQuery)
 from app.domain.users.auth.repositories import TokenRepository
-from app.domain.users.core.commands import (
-    UpdatePasswordConfirmCommand,
-    UpdatePasswordRequestCommand,
-    UserActivateCommand,
-    UserCreateCommand,
-    UserPartialUpdateCommand,
-)
-from app.domain.users.core.queries import (
-    UserListQuery,
-    UserRetrieveByCodeQuery,
-    UserRetrieveByEmailQuery,
-    UserRetrieveByUsernameQuery,
-    UserRetrieveQuery,
-)
-from app.domain.users.core.repositories import (
-    EmailRpository,
-    UpdatePasswordRepository,
-    UserRepository,
-)
+from app.domain.users.core.commands import (UpdatePasswordConfirmCommand,
+                                            UpdatePasswordRequestCommand,
+                                            UserActivateCommand,
+                                            UserCreateCommand,
+                                            UserPartialUpdateCommand)
+from app.domain.users.core.queries import (UserListQuery,
+                                           UserRetrieveByCodeQuery,
+                                           UserRetrieveByEmailQuery,
+                                           UserRetrieveByUsernameQuery,
+                                           UserRetrieveQuery, UsersByIdsQuery)
+from app.domain.users.core.repositories import (EmailRpository,
+                                                UpdatePasswordRepository,
+                                                UserRepository)
 from app.domain.users.management.commands import (
-    UserManagementCreateCommand,
-    UserManagementPartialUpdateCommand,
-)
-from app.domain.users.management.queries import (
-    UserManagementListQuery,
-    UserManagementRetrieveQuery,
-)
+    UserManagementCreateCommand, UserManagementPartialUpdateCommand)
+from app.domain.users.management.queries import (UserManagementListQuery,
+                                                 UserManagementRetrieveQuery)
 from app.domain.users.permissions.queries import UserPermissionListQuery
 from app.domain.users.permissions.services import UserPermissionService
 from app.domain.users.registration.commands import (
-    UserEmailVerificationConfirmCommand,
-    UserEmailVerificationRequestCommand,
-    UserRegisterCommand,
-)
-from app.domain.users.registration.hi import First_Registration, Generate_Password
+    UserEmailVerificationConfirmCommand, UserEmailVerificationRequestCommand,
+    UserRegisterCommand)
+from app.domain.users.registration.hi import (First_Registration,
+                                              Generate_Password)
 
 
 class UserContainer(containers.DeclarativeContainer):
@@ -288,4 +274,9 @@ class UserContainer(containers.DeclarativeContainer):
     profile_me_query = providers.Factory(
         UserProfileMeQuery,
         current_user_query=current_user_query,
+    )
+
+    users_by_ids_query = providers.Factory(
+        UsersByIdsQuery,
+        user_repository=user_repository,
     )

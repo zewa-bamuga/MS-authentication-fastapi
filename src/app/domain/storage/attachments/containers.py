@@ -3,10 +3,8 @@ from a8t_tools.storage.facade import FileStorage
 from dependency_injector import containers, providers
 
 from app.domain.storage.attachments.commands import AttachmentCreateCommand
-from app.domain.storage.attachments.queries import (
-    AttachmentListQuery,
-    AttachmentRetrieveQuery,
-)
+from app.domain.storage.attachments.queries import (AttachmentListQuery,
+                                                    AttachmentRetrieveQuery)
 from app.domain.storage.attachments.repositories import AttachmentRepository
 
 

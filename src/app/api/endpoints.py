@@ -1,6 +1,7 @@
 from fastapi import APIRouter, status
 
 import app.domain.users.auth.views
+import app.domain.users.management.views
 import app.domain.users.registration.views
 from app.api import schemas
 
@@ -10,6 +11,9 @@ auth.include_router(
 )
 auth.include_router(
     app.domain.users.auth.views.router, prefix="/v1", tags=["Authentication"]
+)
+auth.include_router(
+    app.domain.users.management.views.router, prefix="/v1", tags=["Authentication"]
 )
 
 router = APIRouter(

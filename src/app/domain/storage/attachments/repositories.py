@@ -1,6 +1,7 @@
 from uuid import UUID
 
-from a8t_tools.db.pagination import NoPaginationResults, Paginated, PaginationCallable
+from a8t_tools.db.pagination import (NoPaginationResults, Paginated,
+                                     PaginationCallable)
 from a8t_tools.db.sorting import SortingData, apply_sorting
 from a8t_tools.db.transactions import AsyncDbTransaction
 from sqlalchemy import insert, select

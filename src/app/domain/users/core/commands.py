@@ -4,25 +4,25 @@ from a8t_tools.bus.producer import TaskProducer
 from a8t_tools.security.hashing import PasswordHashService
 from fastapi import HTTPException
 from loguru import logger
+from passlib.context import CryptContext
 
 from app.domain.common import enums
 from app.domain.common.models import PasswordResetCode
 from app.domain.common.schemas import IdContainer
 from app.domain.users.core import schemas
-from app.domain.users.core.queries import (
-    UserRetrieveByCodeQuery,
-    UserRetrieveByEmailQuery,
-)
-from app.domain.users.core.repositories import UpdatePasswordRepository, UserRepository
+from app.domain.users.core.queries import (UserRetrieveByCodeQuery,
+                                           UserRetrieveByEmailQuery)
+from app.domain.users.core.repositories import (UpdatePasswordRepository,
+                                                UserRepository)
 from app.domain.users.core.schemas import EmailForCode
 from app.domain.users.registration.hi import send_password_reset_email
 
 
 class UpdatePasswordRequestCommand:
     def __init__(
-        self,
-        user_retrieve_by_email_query: UserRetrieveByEmailQuery,
-        repository: UpdatePasswordRepository,
+            self,
+            user_retrieve_by_email_query: UserRetrieveByEmailQuery,
+            repository: UpdatePasswordRepository,
     ):
         self.user_retrieve_by_email_query = user_retrieve_by_email_query
         self.repository = repository
@@ -46,31 +46,52 @@ class UpdatePasswordRequestCommand:
         return EmailForCode(email=email)
 
 
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
 class UserPartialUpdateCommand:
     def __init__(self, user_repository: UserRepository):
         self.user_repository = user_repository
 
     async def __call__(
-        self, user_id: UUID, password_hash: str
+            self, user_id: UUID, payload: schemas.UserPasswordUpdate
     ) -> schemas.UserDetailsFull:
-        payload = schemas.UserPartialUpdate(password_hash=password_hash)
-        await self.user_repository.partial_update_user(user_id, payload)
+        # 1. Получаем пользователя из базы
         user = await self.user_repository.get_user_by_filter_or_none(
             schemas.UserWhere(id=user_id)
         )
 
-        assert user
-        return schemas.UserDetailsFull.model_validate(user)
+        if not user:
+            raise ValueError("User not found")
+
+        # 2. Проверяем старый пароль
+        if not pwd_context.verify(payload.old_password, user.password_hash):
+            raise ValueError("Old password is incorrect")
+
+        # 3. Хэшируем новый пароль
+        new_password_hash = pwd_context.hash(payload.new_password)
+
+        # 4. Обновляем пароль
+        update_payload = schemas.UserPartialUpdate(password_hash=new_password_hash)
+        await self.user_repository.partial_update_user(user_id, update_payload)
+
+        # 5. Возвращаем свежие данные пользователя
+        updated_user = await self.user_repository.get_user_by_filter_or_none(
+            schemas.UserWhere(id=user_id)
+        )
+
+        assert updated_user
+        return schemas.UserDetailsFull.model_validate(updated_user)
 
 
 class UpdatePasswordConfirmCommand:
     def __init__(
-        self,
-        user_retrieve_by_email_query: UserRetrieveByEmailQuery,
-        user_retrieve_by_code_query: UserRetrieveByCodeQuery,
-        repository: UserRepository,
-        user_partial_update_command: UserPartialUpdateCommand,
-        password_hash_service: PasswordHashService,
+            self,
+            user_retrieve_by_email_query: UserRetrieveByEmailQuery,
+            user_retrieve_by_code_query: UserRetrieveByCodeQuery,
+            repository: UserRepository,
+            user_partial_update_command: UserPartialUpdateCommand,
+            password_hash_service: PasswordHashService,
     ):
         self.user_retrieve_by_email_query = user_retrieve_by_email_query
         self.user_retrieve_by_code_query = user_retrieve_by_code_query
@@ -104,9 +125,9 @@ class UpdatePasswordConfirmCommand:
 
 class UserCreateCommand:
     def __init__(
-        self,
-        user_repository: UserRepository,
-        task_producer: TaskProducer,
+            self,
+            user_repository: UserRepository,
+            task_producer: TaskProducer,
     ):
         self.user_repository = user_repository
         self.task_producer = task_producer
@@ -137,8 +158,8 @@ class UserCreateCommand:
 
 class UserActivateCommand:
     def __init__(
-        self,
-        repository: UserRepository,
+            self,
+            repository: UserRepository,
     ):
         self.repository = repository
 

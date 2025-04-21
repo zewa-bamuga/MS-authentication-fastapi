@@ -5,10 +5,8 @@ from starlette import status
 from app.containers import Container
 from app.domain.users.core import schemas
 from app.domain.users.registration.commands import (
-    UserEmailVerificationConfirmCommand,
-    UserEmailVerificationRequestCommand,
-    UserRegisterCommand,
-)
+    UserEmailVerificationConfirmCommand, UserEmailVerificationRequestCommand,
+    UserRegisterCommand)
 from app.domain.users.registration.hi import send_hello
 
 router = APIRouter()

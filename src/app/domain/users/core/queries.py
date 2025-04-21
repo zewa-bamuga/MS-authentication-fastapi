@@ -4,7 +4,9 @@ from a8t_tools.db.pagination import Paginated
 
 from app.domain.common.exceptions import NotFoundError
 from app.domain.users.core import schemas
-from app.domain.users.core.repositories import UpdatePasswordRepository, UserRepository
+from app.domain.users.core.repositories import (UpdatePasswordRepository,
+                                                UserRepository)
+from app.domain.users.core.schemas import UserDetailsFull
 
 
 class EmailRetrieveQuery:
@@ -13,7 +15,7 @@ class EmailRetrieveQuery:
 
     async def __call__(self, user_email: str) -> schemas.UserInternal:
         result = await self.repository.get_user_by_filter_by_email_or_none(
-            (schemas.UserWhere(email=user_email))
+            schemas.UserWhere(email=user_email)
         )
         if not result:
             raise NotFoundError()
@@ -50,9 +52,9 @@ class UserRetrieveByEmailQuery:
 
 class UserRetrieveByCodeQuery:
     def __init__(
-        self,
-        update_password_repository: UpdatePasswordRepository,
-        user_repository: UserRepository,
+            self,
+            update_password_repository: UpdatePasswordRepository,
+            user_repository: UserRepository,
     ):
         self.update_password_repository = update_password_repository
         self.user_repository = user_repository
@@ -88,10 +90,23 @@ class UserRetrieveQuery:
 
 
 class UserListQuery:
-    def __init__(self, repository: UserRepository):
-        self.repository = repository
+    def __init__(self, user_repository: UserRepository):
+        self.user_repository = user_repository
 
     async def __call__(
-        self, payload: schemas.UserListRequestSchema
+            self, payload: schemas.UserListRequestSchema
     ) -> Paginated[schemas.User]:
-        return await self.repository.get_users(payload.pagination, payload.sorting)
+        return await self.user_repository.get_users(
+            pagination=payload.pagination,
+            sorting=payload.sorting,
+            where=payload.where,
+        )
+
+
+class UsersByIdsQuery:
+    def __init__(self, user_repository: UserRepository) -> None:
+        self.user_repository = user_repository
+
+    async def __call__(self, ids: list[UUID]) -> list[UserDetailsFull]:
+        users = await self.user_repository.get_users_by_ids(ids)
+        return [UserDetailsFull.model_validate(user) for user in users]

@@ -20,7 +20,7 @@ class EmailRpository(CrudRepositoryMixin[models.EmailCode]):
         self.transaction = transaction
 
     async def create_code(
-        self, payload: schemas.EmailVerificationCode
+            self, payload: schemas.EmailVerificationCode
     ) -> IdContainerTables:
         return IdContainerTables(id=await self._create(payload))
 
@@ -62,7 +62,7 @@ class UpdatePasswordRepository(CrudRepositoryMixin[models.PasswordResetCode]):
         self.transaction = transaction
 
     async def create_update_password(
-        self, payload: schemas.PasswordResetCode
+            self, payload: schemas.PasswordResetCode
     ) -> IdContainerTables:
         return IdContainerTables(id=await self._create(payload))
 
@@ -76,7 +76,7 @@ class UpdatePasswordRepository(CrudRepositoryMixin[models.PasswordResetCode]):
             await session.commit()
 
     async def get_password_reset_code_by_code_or_none(
-        self, where: schemas.PasswordResetCodeWhere
+            self, where: schemas.PasswordResetCodeWhere
     ) -> schemas.PasswordResetCode:
         result = await self._get_or_none(
             schemas.PasswordResetCode,
@@ -86,7 +86,7 @@ class UpdatePasswordRepository(CrudRepositoryMixin[models.PasswordResetCode]):
         return result
 
     async def _format_filters_code(
-        self, where: schemas.PasswordResetCodeWhere
+            self, where: schemas.PasswordResetCodeWhere
     ) -> ColumnElement[bool]:
         filters: list[ColumnElement[bool]] = []
         print("выполняется в _format_filters_code")
@@ -120,19 +120,36 @@ class UserRepository(CrudRepositoryMixin[models.User]):
         self.transaction = transaction
 
     async def get_users(
-        self,
-        pagination: PaginationCallable[schemas.User] | None = None,
-        sorting: SortingData[schemas.UserSorts] | None = None,
+            self,
+            pagination: PaginationCallable[schemas.User] | None = None,
+            sorting: SortingData[schemas.UserSorts] | None = None,
+            where: schemas.UserWhere | None = None,
     ) -> Paginated[schemas.User]:
+        condition = None
+        if where:
+            conditions = []
+            if where.permissions:
+                conditions.append(self.model.permissions.any(where.permissions))
+            if where.id:
+                conditions.append(self.model.id == where.id)
+            if where.firstname:
+                conditions.append(self.model.firstname.ilike(f"%{where.firstname}%"))
+            if where.email:
+                conditions.append(self.model.email.ilike(f"%{where.email}%"))
+
+            if conditions:
+                condition = and_(*conditions)
+
         return await self._get_list(
             schemas.User,
             pagination=pagination,
             sorting=sorting,
+            condition=condition,
             options=self.load_options,
         )
 
     async def get_user_by_filter_or_none(
-        self, where: schemas.UserWhere
+            self, where: schemas.UserWhere
     ) -> schemas.UserInternal | None:
         return await self._get_or_none(
             schemas.UserInternal,
@@ -141,7 +158,7 @@ class UserRepository(CrudRepositoryMixin[models.User]):
         )
 
     async def get_user_by_filter_by_email_or_none(
-        self, where: schemas.UserWhere
+            self, where: schemas.UserWhere
     ) -> schemas.UserInternal | None:
         return await self._get_or_none(
             schemas.UserInternal,
@@ -153,7 +170,7 @@ class UserRepository(CrudRepositoryMixin[models.User]):
         return IdContainer(id=await self._create(payload))
 
     async def partial_update_user(
-        self, user_id: UUID, payload: schemas.UserPartialUpdate
+            self, user_id: UUID, payload: schemas.UserPartialUpdate
     ) -> None:
         print(f"Updating user {user_id} with payload: {payload}")
         return await self._partial_update(user_id, payload)
@@ -167,7 +184,7 @@ class UserRepository(CrudRepositoryMixin[models.User]):
         )
 
     async def get_password_reset_code_by_code_or_none(
-        self, where: schemas.PasswordResetCodeWhere
+            self, where: schemas.PasswordResetCodeWhere
     ) -> schemas.PasswordResetCode | None:
         return await self._get_or_none(
             schemas.PasswordResetCode,
@@ -175,7 +192,7 @@ class UserRepository(CrudRepositoryMixin[models.User]):
         )
 
     async def _format_filters_code(
-        self, where: schemas.PasswordResetCodeWhere
+            self, where: schemas.PasswordResetCodeWhere
     ) -> ColumnElement[bool]:
         filters: list[ColumnElement[bool]] = []
         print("выполняется в _format_filters_code")
@@ -210,7 +227,7 @@ class UserRepository(CrudRepositoryMixin[models.User]):
         return and_(*filters)
 
     async def _format_filters_email(
-        self, where: schemas.UserWhere
+            self, where: schemas.UserWhere
     ) -> ColumnElement[bool]:
         filters: list[ColumnElement[bool]] = []
 
@@ -221,3 +238,14 @@ class UserRepository(CrudRepositoryMixin[models.User]):
             filters.append(models.User.email == where.email)
 
         return and_(*filters)
+
+    async def get_users_by_ids(
+            self, ids: list[UUID]
+    ) -> list[schemas.UserInternal]:
+        if not ids:
+            return []
+
+        stmt = select(self.model).where(self.model.id.in_(ids)).options(*self.load_options)
+        result = await self.transaction.execute(stmt)
+        users = result.scalars().all()
+        return [schemas.UserInternal.model_validate(user) for user in users]

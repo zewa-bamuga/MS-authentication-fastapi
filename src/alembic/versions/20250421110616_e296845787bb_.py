@@ -1,18 +1,19 @@
 """empty message
 
-Revision ID: f09e832628a5
+Revision ID: e296845787bb
 Revises: 
-Create Date: 2025-03-23 13:37:16.501479
+Create Date: 2025-04-21 11:06:16.066926
 
 """
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
+from alembic import op
+
 # revision identifiers, used by Alembic.
-revision: str = 'f09e832628a5'
+revision: str = 'e296845787bb'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -41,7 +42,9 @@ def upgrade() -> None:
     op.create_table('user',
     sa.Column('firstname', sa.String(), nullable=True),
     sa.Column('lastname', sa.String(), nullable=True),
+    sa.Column('middle_name', sa.String(), nullable=True),
     sa.Column('email', sa.String(), nullable=True),
+    sa.Column('phone', sa.String(), nullable=True),
     sa.Column('description', sa.String(), nullable=True),
     sa.Column('status', sa.String(), nullable=True),
     sa.Column('password_hash', sa.String(), nullable=True),
@@ -53,7 +56,8 @@ def upgrade() -> None:
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['avatar_attachment_id'], ['attachment.id'], ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('email')
+    sa.UniqueConstraint('email'),
+    sa.UniqueConstraint('phone')
     )
     op.create_index(op.f('ix_user_avatar_attachment_id'), 'user', ['avatar_attachment_id'], unique=False)
     op.create_index(op.f('ix_user_id'), 'user', ['id'], unique=False)

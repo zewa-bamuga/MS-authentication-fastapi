@@ -1,7 +1,8 @@
 from a8t_tools.security.permissions import PermissionResolver
 
 from app.domain.common.enums import AuthErrorCodes
-from app.domain.common.exceptions import AuthError, NotFoundError, UserPermissionError
+from app.domain.common.exceptions import (AuthError, NotFoundError,
+                                          UserPermissionError)
 from app.domain.users.auth.queries import CurrentUserTokenPayloadQuery
 from app.domain.users.permissions.queries import UserPermissionListQuery
 

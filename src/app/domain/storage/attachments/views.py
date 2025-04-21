@@ -8,10 +8,8 @@ from app.api import deps
 from app.containers import Container
 from app.domain.storage.attachments import schemas
 from app.domain.storage.attachments.commands import AttachmentCreateCommand
-from app.domain.storage.attachments.queries import (
-    AttachmentListQuery,
-    AttachmentRetrieveQuery,
-)
+from app.domain.storage.attachments.queries import (AttachmentListQuery,
+                                                    AttachmentRetrieveQuery)
 
 router = APIRouter()
 

@@ -9,8 +9,10 @@ from app.domain.common import enums
 from app.domain.common.exceptions import AuthError
 from app.domain.users.auth.queries import TokenPayloadQuery
 from app.domain.users.auth.repositories import TokenRepository
-from app.domain.users.auth.schemas import TokenInfo, TokenPayload, TokenResponse
-from app.domain.users.core.queries import UserRetrieveByEmailQuery, UserRetrieveQuery
+from app.domain.users.auth.schemas import (TokenInfo, TokenPayload,
+                                           TokenResponse)
+from app.domain.users.core.queries import (UserRetrieveByEmailQuery,
+                                           UserRetrieveQuery)
 from app.domain.users.core.schemas import UserCredentials, UserInternal
 
 

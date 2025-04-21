@@ -7,15 +7,15 @@ from fastapi import APIRouter, Body, Depends, Header
 from starlette import status
 
 from app.containers import Container
-from app.domain.users.auth.commands import TokenRefreshCommand, UserAuthenticateCommand
+from app.domain.users.auth.commands import (TokenRefreshCommand,
+                                            UserAuthenticateCommand)
 from app.domain.users.auth.queries import UserProfileMeQuery
 from app.domain.users.auth.schemas import TokenResponse
 from app.domain.users.core import schemas
-from app.domain.users.core.commands import (
-    UpdatePasswordConfirmCommand,
-    UpdatePasswordRequestCommand,
-)
-from app.domain.users.core.schemas import EmailForCode, UserCredentials, UserDetailsFull
+from app.domain.users.core.commands import (UpdatePasswordConfirmCommand,
+                                            UpdatePasswordRequestCommand)
+from app.domain.users.core.schemas import (EmailForCode, UserCredentials,
+                                           UserDetailsFull)
 
 router = APIRouter()
 
@@ -93,3 +93,4 @@ async def get_me(
 ) -> UserDetailsFull:
     async with user_token(token):
         return await query()
+

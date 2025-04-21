@@ -38,7 +38,9 @@ class User(Base):
 
     firstname = Column(String, unique=False, nullable=True)
     lastname = Column(String, unique=False, nullable=True)
+    middle_name = Column(String, unique=False, nullable=True)
     email = Column(String, unique=True, nullable=True)
+    phone = Column(String, unique=True, nullable=True)
     description = Column(String, unique=False, nullable=True)
     status = Column(String)
     password_hash = Column(String)
@@ -62,7 +64,6 @@ class User(Base):
     )
     token = relationship("Token", back_populates="user")
     password_reset_code = relationship("PasswordResetCode", back_populates="user")
-
 
 
 class Token(Base):

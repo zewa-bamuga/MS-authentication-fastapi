@@ -10,12 +10,15 @@ from pydantic import EmailStr
 from app.domain.common.enums import UserStatuses
 from app.domain.common.schemas import APIModel
 from app.domain.storage.attachments.schemas import Attachment
+from app.domain.users.permissions.schemas import BasePermissions
 
 
 class User(APIModel):
     id: UUID
     firstname: str
     lastname: str
+    middle_name: str | None = None
+    phone: str | None = None
     email: EmailStr
     description: str | None = None
     status: UserStatuses
@@ -37,18 +40,25 @@ class UserCredentials(APIModel):
     password: str
 
 
+class UsersByIdsRequest(APIModel):
+    ids: list[UUID]
+
+
 class UserCredentialsRegist(APIModel):
     firstname: str
     lastname: str
+    middle_name: str
+    phone: str
     email: str
     permissions: set[str] | None = None
     password: str
-    is_subscribed: bool = False
 
 
 class UserCreate(APIModel):
     firstname: str | None = None
     lastname: str | None = None
+    middle_name: str | None = None
+    phone: str | None = None
     email: EmailStr | None = None
     description: str | None = None
     password_hash: str
@@ -71,6 +81,11 @@ class UserPartialUpdate(APIModel):
     is_subscribed: bool = False
 
 
+class UserPasswordUpdate(APIModel):
+    old_password: str
+    new_password: str
+
+
 class UserPartialUpdateFull(APIModel):
     password_hash: str | None = None
 
@@ -79,6 +94,8 @@ class UserInternal(APIModel):
     id: UUID
     firstname: str
     lastname: str
+    middle_name: str | None = None
+    phone: str | None = None
     email: EmailStr
     description: str | None = None
     password_hash: str
@@ -93,6 +110,7 @@ class UserSorts(enum.StrEnum):
     id = enum.auto()
     firstname = enum.auto()
     email = enum.auto()
+    permissions = enum.auto()
     status = enum.auto()
     created_at = enum.auto()
 
@@ -131,16 +149,18 @@ class PasswordResetCodePartialUpdate(APIModel):
 
 
 @dataclass
-class UserListRequestSchema:
-    pagination: pg.PaginationCallable[User] | None = None
-    sorting: sr.SortingData[UserSorts] | None = None
-
-
-@dataclass
 class UserWhere:
     id: UUID | None = None
     firstname: str | None = None
+    permissions: str | None = "student"
     email: str | None = None
+
+
+@dataclass
+class UserListRequestSchema:
+    pagination: pg.PaginationCallable[User] | None = None
+    sorting: sr.SortingData[UserSorts] | None = None
+    where: UserWhere | None = None
 
 
 @dataclass
