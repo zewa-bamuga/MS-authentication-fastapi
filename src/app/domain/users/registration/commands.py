@@ -55,6 +55,8 @@ class UserRegisterCommand:
             schemas.UserCreate(
                 firstname=payload.firstname,
                 lastname=payload.lastname,
+                middle_name=payload.middle_name,
+                phone=payload.phone,
                 email=payload.email,
                 password_hash=(await self.password_hash_service.hash(payload.password)),
                 avatar_attachment_id=None,
